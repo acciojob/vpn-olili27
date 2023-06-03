@@ -23,25 +23,46 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User register(String username, String password, String countryName) throws Exception{
-        String capital = countryName.toUpperCase();
-
-        if (!capital.equals("IND") || !capital.equals("USA") || !capital.equals("JPN") || !capital.equals("AUS") || !capital.equals("CHI")) throw new Exception("Country not found");
-
         User user = new User();
-        user.setUsername(username);
-        user.setPassword(password);
+        if(countryName.equalsIgnoreCase("IND") || countryName.equalsIgnoreCase("USA")|| countryName.equalsIgnoreCase("JPN")|| countryName.equalsIgnoreCase("AUS")|| countryName.equalsIgnoreCase("CHI")) {
+            user.setUsername(username);
+            user.setPassword(password);
 
-        Country country = new Country();
-        CountryName name = CountryName.valueOf(capital);
-        country.setCountryName(name);
-        country.setCode(name.toCode());
+            Country country = new Country(); //linking
+            if (countryName.equalsIgnoreCase("IND")) {
+                country.setCountryName(CountryName.IND);
+                country.setCode(CountryName.IND.toCode());
+            }
+            if (countryName.equalsIgnoreCase("USA")) {
+                country.setCountryName(CountryName.USA);
+                country.setCode(CountryName.USA.toCode());
+            }
+            if (countryName.equalsIgnoreCase("JPN")) {
+                country.setCountryName(CountryName.JPN);
+                country.setCode(CountryName.JPN.toCode());
+            }
+            if (countryName.equalsIgnoreCase("CHI")) {
+                country.setCountryName(CountryName.CHI);
+                country.setCode(CountryName.CHI.toCode());
+            }
+            if (countryName.equalsIgnoreCase("AUA")) {
+                country.setCountryName(CountryName.AUS);
+                country.setCode(CountryName.AUS.toCode());
+            }
 
-        user.setCountry(country);
-        User savedUser = userRepository3.save(user);
+            country.setUser(user);
+            user.setConnected(false);
+            user.setOriginalCountry(country);
+            String code = country.getCode() + "." + userRepository3.save(user).getId();
+            user.setOriginalIp(code);
 
-        savedUser.setOriginalIp(country.getCode() + "." + savedUser.getId());
+            userRepository3.save(user);
+        }
+         else{
+             throw new Exception("Country not found");
+        }
+         return user;
 
-        return user;
     }
 
     @Override
@@ -50,10 +71,9 @@ public class UserServiceImpl implements UserService {
         ServiceProvider serviceProvider = serviceProviderRepository3.findById(serviceProviderId).get();
 
         user.getServiceProviderList().add(serviceProvider);
-
         serviceProvider.getUsers().add(user);
-        serviceProviderRepository3.save(serviceProvider);
 
+        serviceProviderRepository3.save(serviceProvider);
         return user;
     }
 }

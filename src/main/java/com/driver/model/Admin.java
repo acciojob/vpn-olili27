@@ -7,28 +7,22 @@ import java.util.List;
 public class Admin {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private int id;
+
     private String username;
     private String password;
 
     @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL)
-    List<ServiceProvider> serviceProviders;
-
-    public Admin(Integer id, String username, String password, List<ServiceProvider> serviceProviders) {
-        this.id = id;
-        this.username = username;
-        this.password = password;
-        this.serviceProviders = serviceProviders;
-    }
+    private List<ServiceProvider> serviceProviders;
 
     public Admin() {
     }
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 

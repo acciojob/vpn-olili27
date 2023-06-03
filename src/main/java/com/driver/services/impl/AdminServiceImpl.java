@@ -11,8 +11,6 @@ import com.driver.services.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class AdminServiceImpl implements AdminService {
     @Autowired
@@ -26,9 +24,9 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public Admin register(String username, String password) {
-        Admin admin = new Admin();
-        admin.setUsername(username);
+        Admin admin=new Admin();
         admin.setPassword(password);
+        admin.setUsername(username);
 
         adminRepository1.save(admin);
         return admin;
@@ -36,43 +34,52 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public Admin addServiceProvider(int adminId, String providerName) {
-        Admin admin = adminRepository1.findById(adminId).get();
-        List<ServiceProvider> serviceProviders = admin.getServiceProviders();
-
-        ServiceProvider serviceProvider = new ServiceProvider();
+        Admin admin=adminRepository1.findById(adminId).get();
+        ServiceProvider serviceProvider=new ServiceProvider();
         serviceProvider.setName(providerName);
-
-        serviceProviders.add(serviceProvider);
-        admin.setServiceProviders(serviceProviders);
-
         serviceProvider.setAdmin(admin);
 
+        admin.getServiceProviders().add(serviceProvider);
         adminRepository1.save(admin);
-
         return admin;
     }
 
     @Override
     public ServiceProvider addCountry(int serviceProviderId, String countryName) throws Exception{
-        String capital = countryName.toUpperCase();
+        
+        if(countryName.equalsIgnoreCase("IND") || countryName.equalsIgnoreCase("USA") || countryName.equalsIgnoreCase("JPN") || countryName.equalsIgnoreCase("CHI") || countryName.equalsIgnoreCase("AUS")){
+            Country country = new Country();
 
-        if (!capital.equals("IND") || !capital.equals("USA") || !capital.equals("JPN") || !capital.equals("AUS") || !capital.equals("CHI")) throw new Exception("Country not found");
+            ServiceProvider serviceProvider = serviceProviderRepository1.findById(serviceProviderId).get();
 
-        ServiceProvider serviceProvider = serviceProviderRepository1.findById(serviceProviderId).get();
-        Country country = new Country();
+            if(countryName.equalsIgnoreCase("IND")){
+                country.setCountryName(CountryName.IND);
+                country.setCode(CountryName.IND.toCode());
+            }
+            if(countryName.equalsIgnoreCase("USA")){
+                country.setCountryName(CountryName.USA);
+                country.setCode(CountryName.USA.toCode());
+            }
+            if(countryName.equalsIgnoreCase("JPN")){
+                country.setCountryName(CountryName.JPN);
+                country.setCode(CountryName.JPN.toCode());
+            }
+            if(countryName.equalsIgnoreCase("CHI")){
+                country.setCountryName(CountryName.CHI);
+                country.setCode(CountryName.CHI.toCode());
+            }
+            if(countryName.equalsIgnoreCase("AUS")){
+                country.setCountryName(CountryName.AUS);
+                country.setCode(CountryName.AUS.toCode());
+            }
+            country.setServiceProvider(serviceProvider);
+            serviceProvider.getCountryList().add(country);
+            serviceProviderRepository1.save(serviceProvider);
 
-        CountryName name = CountryName.valueOf(capital);
-        country.setCountryName(name);
-        country.setCode(name.toCode());
-
-        List<Country> countryList = serviceProvider.getCountryList();
-        countryList.add(country);
-
-        country.setServiceProvider(serviceProvider);
-        serviceProvider.setCountryList(countryList);
-
-        serviceProviderRepository1.save(serviceProvider);
-
-        return serviceProvider;
+            return serviceProvider;
+        }
+        else{
+            throw new Exception("Country not found");
+        }
     }
 }
